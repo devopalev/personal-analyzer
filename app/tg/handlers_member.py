@@ -4,11 +4,11 @@ from telegram.ext import CallbackContext, BaseHandler, ChatJoinRequestHandler, C
 
 from telegram.constants import ChatMemberStatus
 
-
 from app.db.session import session_wrapper
 from app.crud import crud_user
 from app.crud import crud_channel
 
+from app.tg.massage_obj import MessageEventJoinedUser, MessageEventLeftUser
 
 STATUS_JOIN = [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.ADMINISTRATOR]
 STATUS_LEFT = [ChatMemberStatus.BANNED, ChatMemberStatus.LEFT]
@@ -28,7 +28,9 @@ async def chat_member_bot(update: Update, context: CallbackContext, session: Asy
 
         user_db = await crud_user.get_by_telegram_id(telegram_id=from_user.id, session=session)
         if not user_db:
-            user_db = await crud_user.create(telegram_id=from_user.id, username=from_user.username, session=session)  #TODO: заполнить
+            user_db = await crud_user.create(language_code=from_user.language_code, telegram_id=from_user.id,
+                                                    username=from_user.username, fullname=from_user.full_name,
+                                                    session=session)
 
         channel_db = await crud_channel.get_by_telegram_id(telegram_id=chat.id, session=session)
         if not channel_db:
@@ -41,18 +43,25 @@ async def chat_member_bot(update: Update, context: CallbackContext, session: Asy
 
 
 async def chat_member_user(update: Update, context: CallbackContext):
-    new_chat_member = update.my_chat_member.new_chat_member
-    old_chat_member = update.my_chat_member.old_chat_member
+    new_chat_member = update.chat_member.new_chat_member
+    old_chat_member = update.chat_member.old_chat_member
+    from_user = update.chat_member.from_user
+    chat = update.chat_member.chat
 
-    # Join
-    if new_chat_member.status in STATUS_JOIN and old_chat_member.status not in STATUS_JOIN:
-        pass
+    channel_db = await crud_channel.get_by_telegram_id(telegram_id=chat.id)
 
-    # Left
-    if new_chat_member.status in STATUS_LEFT and old_chat_member.status not in STATUS_LEFT:
-        pass
+    if channel_db:
+        for user in channel_db.users:
 
-    print('User Member HANDLER', update.to_dict())
+            # Join
+            if new_chat_member.status in STATUS_JOIN and old_chat_member.status not in STATUS_JOIN:
+                msg_text = await MessageEventJoinedUser.a_build(from_user, channel_db.title, user.language_code)
+                await context.bot.send_message(user.telegram_id, str(msg_text), parse_mode=msg_text.PARSE_MODE)
+
+            # Left
+            elif new_chat_member.status in STATUS_LEFT and old_chat_member.status not in STATUS_LEFT:
+                msg_text = await MessageEventLeftUser.a_build(from_user, channel_db.title, user.language_code)
+                await context.bot.send_message(user.telegram_id, str(msg_text), parse_mode=msg_text.PARSE_MODE)
 
 
 async def chat_join(update: Update, context: CallbackContext):
