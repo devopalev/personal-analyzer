@@ -6,12 +6,12 @@ from app.db.models.users import User
 
 
 class CRUDTelegramChannel(CRUDBase[TelegramChannel]):
-    async def associate_to_user(self, channel: TelegramChannel, user: User, session: AsyncSession = None
-                                ) -> TelegramChannel:
+    @staticmethod
+    async def add_associate_to_user(channel: TelegramChannel, user: User, session: AsyncSession = None
+                                    ) -> TelegramChannel:
         channel.users.append(user)
         session.add(channel)
         await session.commit()
         return channel
-
 
 crud_channel = CRUDTelegramChannel(TelegramChannel)

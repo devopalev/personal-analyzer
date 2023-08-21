@@ -23,7 +23,7 @@ class LanguageObject(Base):
     value = sa.Column(sa.String, nullable=False)
 
     def __repr__(self) -> str:
-        return f"Algorithm(telegram_id={self})"
+        return f"LanguageObject(language_code={self.language_code}, key={self.key})"
 
     def __str__(self) -> str:
-        return self.__repr__()
+        return str(self.value)

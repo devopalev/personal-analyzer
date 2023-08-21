@@ -14,8 +14,6 @@ class ConstantsRole(StrEnum):
 
 
 class User(Base):
-
-
     __tablename__ = "users"
 
     id = sa.Column(sa.Integer, primary_key=True, index=True, autoincrement=True)

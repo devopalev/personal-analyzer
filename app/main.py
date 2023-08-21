@@ -1,12 +1,14 @@
 import asyncio
 import logging
-from telegram.ext import ApplicationBuilder, CommandHandler, Application
+
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, Application, ChatJoinRequestHandler, BaseHandler, \
+    CallbackContext
 from telegram.error import RetryAfter
 
 
 from app.core import settings
-from app.tg.handlers_member import *
-from app.crud import crud_user
+from app.tg.handlers.chat_members import registration_chat_members_handlers
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -35,6 +37,13 @@ async def start(update: Update, context: CallbackContext):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
 
 
+class UnknownHandler(BaseHandler):
+    def check_update(self, *args, **kwargs):
+        return True
+
+
+async def unknown_handler(update: Update, context: CallbackContext):
+    print("Unknown update", update.to_dict())
 
 
 async def main():
@@ -43,12 +52,8 @@ async def main():
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
 
-    application.add_handler(ChatJoinRequestHandler(chat_join))
-    # Keep track of which chats the bot is in
-    application.add_handler(ChatMemberHandler(chat_member_bot, ChatMemberHandler.MY_CHAT_MEMBER))
-
-    # Handle members joining/leaving chats
-    application.add_handler(ChatMemberHandler(chat_member_user, ChatMemberHandler.CHAT_MEMBER))
+    # Keep track of which chats the bot is in, Handle members joining/leaving chats
+    registration_chat_members_handlers(application)
 
     application.add_handler(UnknownHandler(unknown_handler))
 
