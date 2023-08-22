@@ -1,31 +1,12 @@
-from abc import ABC, abstractmethod
-
 from telegram import User
 from telegram.helpers import mention_markdown
 from telegram.constants import ParseMode
 
 from app.crud import crud_language
+from app.tg.messages.base import MessageTextBaseBuilder
 
 
-class MessageTextBase(ABC):
-    key = ""
-    PARSE_MODE = ParseMode.MARKDOWN
-
-    @abstractmethod
-    def __init__(self):
-        raise NotImplemented()
-
-    @abstractmethod
-    def __str__(self):
-        raise NotImplemented()
-
-    @classmethod
-    @abstractmethod
-    async def a_build(cls, *args, **kwargs):
-        raise NotImplemented()
-
-
-class MessageEventJoinedUser(MessageTextBase):
+class MessageEventJoinedUser(MessageTextBaseBuilder):
     key = "/event/channel/joined_user"
     PARSE_MODE = ParseMode.MARKDOWN
 
@@ -46,7 +27,7 @@ class MessageEventLeftUser(MessageEventJoinedUser):
     key = "/event/channel/left_user"
 
 
-class MessageBotLeftChannel(MessageTextBase):
+class MessageBotLeftChannel(MessageTextBaseBuilder):
     key = "/event/channel/left_bot"
 
     def __init__(self, raw_text: str, channel_title: str):

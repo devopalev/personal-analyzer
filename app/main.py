@@ -1,63 +1,25 @@
 import asyncio
-import logging
 
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, Application, ChatJoinRequestHandler, BaseHandler, \
-    CallbackContext
-from telegram.error import RetryAfter
-
+from telegram.ext import ApplicationBuilder
 
 from app.core import settings
-from app.tg.handlers.chat_members import registration_chat_members_handlers
-
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
-
-async def preconfiguring_bot(application: Application):
-    """
-    Pre-configuring the bot. Installing the logo, description, etc
-
-    """
-    try:
-        if await application.bot.get_my_name() != settings.BOT_NAME:
-            await application.bot.set_my_name(name=settings.BOT_NAME)
-
-        if await application.bot.get_my_description() != settings.BOT_DESCRIPTION:
-            await application.bot.set_my_description(description=settings.BOT_DESCRIPTION)
-    except RetryAfter:
-        pass
-
-
-async def start(update: Update, context: CallbackContext):
-    #TODO: activate user in db
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
-
-
-class UnknownHandler(BaseHandler):
-    def check_update(self, *args, **kwargs):
-        return True
-
-
-async def unknown_handler(update: Update, context: CallbackContext):
-    print("Unknown update", update.to_dict())
+from app.core.log import init_logging
+from app.tg import build_handlers
+from app.tg import build_commands
+from app.tg import error_handler
 
 
 async def main():
+    init_logging()
     application = ApplicationBuilder().token(settings.BOT_TOKEN).build()
 
-    start_handler = CommandHandler('start', start)
-    application.add_handler(start_handler)
+    commands = build_commands()
+    await application.bot.set_my_commands(commands)
 
-    # Keep track of which chats the bot is in, Handle members joining/leaving chats
-    registration_chat_members_handlers(application)
-
-    application.add_handler(UnknownHandler(unknown_handler))
-
-    await preconfiguring_bot(application)
+    handlers = build_handlers()
+    application.add_handlers(handlers)
+    application.add_error_handler(error_handler)
 
     async with application:  # Calls `initialize` and `shutdown`
         await application.start()

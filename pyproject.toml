@@ -2,7 +2,7 @@
 name = "personal-analyzer-bot"
 version = "0.1.0"
 description = ""
-authors = ["Maksim <maksi.opalev@gmail.com>"]
+authors = ["Maksim <maksim@devopalev.ru>"]
 readme = "README.md"
 packages = [{include = "personal_analyzer_bot"}]
 

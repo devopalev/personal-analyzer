@@ -32,3 +32,9 @@ class CRUDBase(Generic[ModelType]):
         await session.delete(db_obj)
         await session.commit()
         return db_obj
+
+    @session_wrapper
+    async def get_or_create(self, session: AsyncSession = None, **kwargs) -> ModelType:
+        telegram_id = kwargs["telegram_id"]
+        user_db = await self.get_by_telegram_id(telegram_id=telegram_id, session=session)
+        return user_db or await self.create(session=session, **kwargs)
