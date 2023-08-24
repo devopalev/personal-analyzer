@@ -1,0 +1,36 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: check-case-conflict
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: mixed-line-ending
+        args: ["--fix=lf"]
+-   repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+    -   id: black
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1  # Use the sha / tag you want to point at
+    hooks:
+    -   id: mypy
+        args: [
+            "--no-strict-optional",
+            "--ignore-missing-imports",
+            "--scripts-are-modules",
+            "--no-warn-return-any"
+        ]
+
+-   repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        entry: flake8 --ignore=E501,W503 --exclude .git,__pycache__,__init__.py,.mypy_cache,.pytest_cache --max-line-length 80
+-   repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.10.0
+    hooks:
+    -   id: reorder-python-imports
+        args: [--py38-plus]

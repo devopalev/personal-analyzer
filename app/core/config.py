@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic_settings import SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -11,10 +12,9 @@ class Settings(BaseSettings):
     LOG_FORMAT: str = "%(asctime)s :: %(levelname)-7s :: %(name)-30s >>> %(message)s"
     LOG_DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        case_sensitive=True, env_file=".env", env_file_encoding="utf-8"
+    )
 
 
 settings = Settings()

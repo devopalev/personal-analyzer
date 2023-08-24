@@ -8,7 +8,11 @@ association_users_channels_table = sa.Table(
     "association_users_channels",
     Base.metadata,
     sa.Column("user_id", sa.ForeignKey("users.id"), primary_key=True),
-    sa.Column("channel_id", sa.ForeignKey("telegram_channels.id", ondelete="CASCADE"), primary_key=True),
+    sa.Column(
+        "channel_id",
+        sa.ForeignKey("telegram_channels.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
 
 
@@ -21,11 +25,14 @@ class TelegramChannel(Base):
     title = sa.Column(sa.String)
 
     users = relationship(
-        "User", secondary=association_users_channels_table, back_populates="channels", lazy="selectin"
+        "User",
+        secondary=association_users_channels_table,
+        back_populates="channels",
+        lazy="selectin",
     )
 
     def __repr__(self) -> str:
-        return f"TelegramChannel(telegram_id={self.telegram_id}, title={self.title})"
+        return f"TelegramChannel(id={self.id}, telegram_id={self.telegram_id}, title={self.title})"
 
     def __str__(self) -> str:
         return self.__repr__()
