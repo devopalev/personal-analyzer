@@ -1,4 +1,15 @@
-/.env
-.idea
+# Cache and environment
+.venv
+.mypy_cache
 __pycache__
+.python-version
+
+# Configuration
+.env
+
+# IDE
+/.vscode
+.idea
+
+# Dev
 /database.sqlite
