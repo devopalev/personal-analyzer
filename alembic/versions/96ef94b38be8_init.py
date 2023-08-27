@@ -32,7 +32,9 @@ def upgrade() -> None:
     op.create_index(
         op.f("ix_language_objects_id"), "language_objects", ["id"], unique=False
     )
-    with open("alembic/default_data/language_objects.sql", "r") as file:
+    with open(
+        "alembic/default_data/language_objects.sql", "r", encoding="utf-8"
+    ) as file:
         dump = file.read()
     op.execute(dump)
 
