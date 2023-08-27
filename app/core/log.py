@@ -4,7 +4,6 @@ from typing import Callable
 
 from telegram import Update
 
-
 from app.core.config import settings
 
 
@@ -28,18 +27,21 @@ def logger_decorator(logger_name: str):
             except Exception as err:
                 logger.error(err, exc_info=True)
                 raise
+
         return inner_wrapper
 
     return outer_wrapper
 
 
-def init_logging():
+def init_logging(debug_mod: bool):
     logger = logging.getLogger("app")
-    logger.setLevel(logging.DEBUG)
+
+    if debug_mod:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
 
     logging.basicConfig(
-        format=settings.LOG_FORMAT,
-        datefmt=settings.LOG_DATE_FORMAT,
-        level=logging.INFO
+        format=settings.LOG_FORMAT, datefmt=settings.LOG_DATE_FORMAT, level=logging.INFO
     )
     logging.getLogger("httpx").setLevel(logging.WARNING)

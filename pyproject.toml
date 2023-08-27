@@ -1,18 +1,19 @@
 [tool.poetry]
 name = "personal-analyzer-bot"
 version = "0.1.0"
-description = ""
+description = "Personal telegram channel analyzer"
 authors = ["Maksim <maksim@devopalev.ru>"]
 readme = "README.md"
-packages = [{include = "personal_analyzer_bot"}]
+# packages = [{include = "personal_analyzer_bot"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 python-telegram-bot = "^20.4"
 sqlalchemy = "^2.0.20"
 pydantic-settings = "^2.0.3"
-alembic = "^1.11.3"
-
+alembic = "^1.8.1"
+asyncpg = "^0.28.0"
+aiosqlite = "^0.19.0"
 
 
 [build-system]
@@ -21,4 +22,6 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.group.dev.dependencies]
-aiosqlite = "^0.19.0"
+pytest = "^7.4.0"
+pytest-mock = "^3.11.1"
+pytest-asyncio = "^0.21.1"

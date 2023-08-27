@@ -8,7 +8,7 @@ from app.core.config import settings
 
 
 engine = create_async_engine(
-    settings.DATABASE_URI,
+    settings.database_uri,
     pool_pre_ping=True,
 )
 
@@ -18,11 +18,11 @@ SessionLocal = sessionmaker(
     expire_on_commit=False,
     class_=AsyncSession,
     autocommit=False,
-    autoflush=False
+    autoflush=False,
 )
 
 
-async def get_async_session() -> SessionLocal:
+async def get_async_session() -> AsyncSession:
     return SessionLocal()
 
 

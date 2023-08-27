@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    volumes:
+      - postgres_analyzer_data:/var/lib/postgresql/data/
+    networks:
+      - personal-analyzer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: always
+    environment:
+      - POSTGRES_HOST=db
+      - DEBUG_MOD=0  # use "1" to log all events or use "0" only for necessary events
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - personal-analyzer-network
+
+
+volumes:
+  postgres_analyzer_data:
+
+networks:
+  network:
+  personal-analyzer-network:
+    name: personal-analyzer-network

@@ -1,17 +1,13 @@
-from app.crud import crud_language
-from app.tg.messages.base import MessageTextBaseBuilder
+from app.tg.messages.base import MessageTextSimpleBuilder
 
 
-class MassageEventError(MessageTextBaseBuilder):
+class MassageEventError(MessageTextSimpleBuilder):
     key = "/event/error"
 
-    def __init__(self, text: str):
-        self.text = text
 
-    def __str__(self):
-        return self.text
+class MassageCommandStart(MessageTextSimpleBuilder):
+    key = "/commands/start"
 
-    @classmethod
-    async def a_build(cls, language_code: str = None):
-        text_db_obj = await crud_language.get(key=cls.key, language_code=language_code)
-        return cls(str(text_db_obj))
+
+class MassageCommandHelp(MessageTextSimpleBuilder):
+    key = "/commands/help"
