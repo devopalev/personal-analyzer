@@ -3,15 +3,17 @@ import asyncio
 from telegram import Update
 from telegram.ext import ApplicationBuilder
 
+from app.core import init_logging
 from app.core import settings
-from app.core.log import init_logging
-from app.tg import build_handlers
+from app.db import init_db
 from app.tg import build_commands
+from app.tg import build_handlers
 from app.tg import error_handler
 
 
 async def main():
-    init_logging()
+    init_db()
+    init_logging(settings.DEBUG_MOD)
     application = ApplicationBuilder().token(settings.BOT_TOKEN).build()
 
     commands = build_commands()
@@ -29,5 +31,5 @@ async def main():
         await asyncio.Future()  # endless waiting
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

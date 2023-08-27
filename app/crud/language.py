@@ -15,16 +15,12 @@ class CRUDLanguageObject(CRUDBase[LanguageObject]):
         language_code: str = ConstantsLanguageCode.DEFAULT.value,
         session: AsyncSession = None,
     ) -> LanguageObject | str:
+        if language_code not in tuple(ConstantsLanguageCode):
+            language_code = ConstantsLanguageCode.DEFAULT.value
         sql = select(self.Model).where(
             self.Model.key == key, self.Model.language_code == language_code
         )
         db_obj = await session.scalar(sql)
-        print(
-            key,
-            language_code,
-            db_obj,
-            (await session.scalars(select(self.Model))).all(),
-        )
         return (
             db_obj
             or "An error has occurred! The text for this message was not found :("

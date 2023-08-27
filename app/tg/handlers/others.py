@@ -8,6 +8,7 @@ from telegram.ext import CallbackContext
 from app.core.log import logger_decorator
 from app.crud import crud_user
 from app.db.models.language_obj import ConstantsLanguageCode
+from app.tg.messages.others import MassageCommandHelp
 from app.tg.messages.others import MassageCommandStart
 from app.tg.messages.others import MassageEventError
 
@@ -25,6 +26,16 @@ async def start_handler(update: Update, context: CallbackContext):
     )
     text = await MassageCommandStart.a_build(language_code=user_db.language_code)
     await crud_user.activate_user(user_db)
+    await from_user.send_message(str(text))
+
+
+@logger_decorator(__name__)
+async def help_handler(update: Update, context: CallbackContext):
+    from_user = update.effective_user
+    user_db = await crud_user.get_by_telegram_id(
+        telegram_id=from_user.id,
+    )
+    text = await MassageCommandHelp.a_build(language_code=user_db.language_code)
     await from_user.send_message(str(text))
 
 
