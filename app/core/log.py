@@ -37,11 +37,13 @@ def init_logging(debug_mod: bool):
     logger = logging.getLogger("app")
 
     if debug_mod:
-        logger.setLevel(logging.DEBUG)
+        level = logging.DEBUG
     else:
-        logger.setLevel(logging.INFO)
+        level = logging.INFO
+
+    logger.setLevel(level)
 
     logging.basicConfig(
-        format=settings.LOG_FORMAT, datefmt=settings.LOG_DATE_FORMAT, level=logging.INFO
+        format=settings.LOG_FORMAT, datefmt=settings.LOG_DATE_FORMAT, level=level
     )
     logging.getLogger("httpx").setLevel(logging.WARNING)

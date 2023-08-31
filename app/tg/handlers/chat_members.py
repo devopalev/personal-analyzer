@@ -5,7 +5,6 @@ from telegram import Update
 from telegram.constants import ChatMemberStatus
 from telegram.ext import CallbackContext
 
-from app.core.log import logger_decorator
 from app.crud import crud_channel
 from app.crud import crud_user
 from app.db.session import session_wrapper
@@ -22,7 +21,6 @@ STATUS_JOIN = [
 STATUS_LEFT = [ChatMemberStatus.BANNED, ChatMemberStatus.LEFT]
 
 
-@logger_decorator(__name__)
 @session_wrapper
 async def chat_member_bot_handler(
     update: Update, context: CallbackContext, session: AsyncSession
@@ -68,7 +66,6 @@ async def chat_member_bot_handler(
         await crud_channel.delete(db_obj=channel_db, session=session)
 
 
-@logger_decorator(__name__)
 async def chat_member_user_handler(update: Update, context: CallbackContext):
     new_chat_member = update.chat_member.new_chat_member
     old_chat_member = update.chat_member.old_chat_member

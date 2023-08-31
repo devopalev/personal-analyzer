@@ -15,7 +15,6 @@ from app.tg.messages.others import MassageEventError
 logger = logging.getLogger(__name__)
 
 
-@logger_decorator(__name__)
 async def start_handler(update: Update, context: CallbackContext):
     from_user = update.effective_user
     user_db = await crud_user.get_or_create(
@@ -29,7 +28,6 @@ async def start_handler(update: Update, context: CallbackContext):
     await from_user.send_message(str(text))
 
 
-@logger_decorator(__name__)
 async def help_handler(update: Update, context: CallbackContext):
     from_user = update.effective_user
     user_db = await crud_user.get_by_telegram_id(
