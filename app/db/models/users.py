@@ -26,8 +26,12 @@ class User(Base):
     language_code = sa.Column(sa.String, default="ru")
     active = sa.Column(sa.Boolean, default=False)
 
+    channel_events = sa.Column(sa.Boolean, default=True)
+
     channels = relationship(
-        "TelegramChannel", secondary=association_users_channels_table, back_populates="users"
+        "TelegramChannel",
+        secondary=association_users_channels_table,
+        back_populates="users",
     )
 
     def __repr__(self) -> str:

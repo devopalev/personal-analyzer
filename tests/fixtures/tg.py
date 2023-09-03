@@ -5,8 +5,8 @@ from telegram.constants import ChatType
 from telegram.ext import CallbackContext
 
 
-async def fake_send_message(self, msg, **kwargs):
-    self.test_storage["send_message"] = msg
+async def fake_send_message(self, text="", **kwargs):
+    self.test_storage["text"] = text
     return True
 
 
@@ -59,8 +59,8 @@ def context():
     test_storage = {}
 
     class Bot:
-        async def send_message(self, tg_id, msg, *args, **kwargs):
-            test_storage["send_message"] = msg
+        async def send_message(self, tg_id, *args, text="", **kwargs):
+            test_storage["text"] = text
 
     CallbackContext.test_storage = test_storage
     CallbackContext.bot = Bot()

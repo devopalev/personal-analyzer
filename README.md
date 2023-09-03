@@ -25,7 +25,7 @@ the sake of increased security.
 * Support for various languages.
 
 ## Support languages
-There is an SQL dump in the `alembic/default_data/language_objects.sql`, you can add translations of messages in other 
+There is an SQL dump in the `app/static/language_objects.sql`, you can add translations of messages in other 
 languages to it. Alternatively, you can add message translations directly to the database. 
 
 **Attention**! The text contains values in curly brackets, for example {title}, do not change them in any case.

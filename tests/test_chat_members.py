@@ -79,12 +79,11 @@ async def test_chat_member_bot_handler(
     channel_db = await db_session.get(ChannelModel, 1)
     assert channel_db is None
 
-    orig_msg = str(
-        await MessageBotLeftChannel.a_build(
-            chat_channel.title, language_code=user_test.language_code
-        )
+    orig_msg = await MessageBotLeftChannel.async_build(
+        chat_channel.title, language_code=user_test.language_code
     )
-    assert context.test_storage["send_message"] == orig_msg
+
+    assert context.test_storage["text"] == orig_msg["text"]
 
 
 @pytest.mark.asyncio
@@ -108,13 +107,11 @@ async def test_chat_member_user_handler(
 
     await chat_member_user_handler(update, context)
 
-    orig_msg = str(
-        await MessageEventJoinedUser.a_build(
-            user_test, chat_channel.title, user_test.language_code
-        )
+    orig_msg = await MessageEventJoinedUser.async_build(
+        user_test, chat_channel.title, user_test.language_code
     )
 
-    assert context.test_storage["send_message"] == orig_msg
+    assert context.test_storage["text"] == orig_msg["text"]
 
     # Left
     chat_member_updated_left = ChatMemberUpdated(
@@ -128,9 +125,8 @@ async def test_chat_member_user_handler(
     update = Update(chat_member=chat_member_updated_left, update_id=4)
     await chat_member_user_handler(update, context)
 
-    orig_msg = str(
-        await MessageEventLeftUser.a_build(
-            user_test, chat_channel.title, user_test.language_code
-        )
+    orig_msg = await MessageEventLeftUser.async_build(
+        user_test, chat_channel.title, user_test.language_code
     )
-    assert context.test_storage["send_message"] == orig_msg
+
+    assert context.test_storage["text"] == orig_msg["text"]

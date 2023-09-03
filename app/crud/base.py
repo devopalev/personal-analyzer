@@ -1,9 +1,12 @@
-from typing import TypeVar, Generic, Type
+from typing import Generic
+from typing import Type
+from typing import TypeVar
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db import Base, session_wrapper
+from app.db import Base
+from app.db import session_wrapper
 
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -14,7 +17,9 @@ class CRUDBase(Generic[ModelType]):
         self.Model = Model
 
     @session_wrapper
-    async def get_by_telegram_id(self, telegram_id: int, session: AsyncSession = None) -> ModelType:
+    async def get_by_telegram_id(
+        self, telegram_id: int, session: AsyncSession = None
+    ) -> ModelType:
         sql = select(self.Model).where(self.Model.telegram_id == telegram_id)
         db_obj = await session.scalar(sql)
         return db_obj
@@ -28,7 +33,9 @@ class CRUDBase(Generic[ModelType]):
         return db_obj
 
     @session_wrapper
-    async def delete(self, db_obj: ModelType, session: AsyncSession = None) -> ModelType:
+    async def delete(
+        self, db_obj: ModelType, session: AsyncSession = None
+    ) -> ModelType:
         await session.delete(db_obj)
         await session.commit()
         return db_obj
@@ -36,5 +43,13 @@ class CRUDBase(Generic[ModelType]):
     @session_wrapper
     async def get_or_create(self, session: AsyncSession = None, **kwargs) -> ModelType:
         telegram_id = kwargs["telegram_id"]
-        user_db = await self.get_by_telegram_id(telegram_id=telegram_id, session=session)
+        user_db = await self.get_by_telegram_id(
+            telegram_id=telegram_id, session=session
+        )
         return user_db or await self.create(session=session, **kwargs)
+
+    @session_wrapper
+    async def update(self, db_obj: ModelType, session: AsyncSession = None):
+        session.add(db_obj)
+        await session.commit()
+        return db_obj

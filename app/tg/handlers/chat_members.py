@@ -5,11 +5,10 @@ from telegram import Update
 from telegram.constants import ChatMemberStatus
 from telegram.ext import CallbackContext
 
-from app.core.log import logger_decorator
 from app.crud import crud_channel
 from app.crud import crud_user
 from app.db.session import session_wrapper
-from app.tg.messages.base import MessageTextBaseBuilder
+from app.tg.messages.base import BaseMessageParams
 from app.tg.messages.chat_members import MessageBotLeftChannel
 from app.tg.messages.chat_members import MessageEventJoinedUser
 from app.tg.messages.chat_members import MessageEventLeftUser
@@ -22,7 +21,6 @@ STATUS_JOIN = [
 STATUS_LEFT = [ChatMemberStatus.BANNED, ChatMemberStatus.LEFT]
 
 
-@logger_decorator(__name__)
 @session_wrapper
 async def chat_member_bot_handler(
     update: Update, context: CallbackContext, session: AsyncSession
@@ -58,17 +56,14 @@ async def chat_member_bot_handler(
         and old_chat_member.status not in STATUS_LEFT
     ):
         for user in channel_db.users:
-            msg_text = await MessageBotLeftChannel.a_build(
+            msg = await MessageBotLeftChannel.async_build(
                 channel_db.title, user.language_code
             )
-            await context.bot.send_message(
-                user.telegram_id, str(msg_text), parse_mode=msg_text.PARSE_MODE
-            )
+            await context.bot.send_message(user.telegram_id, **msg)
 
         await crud_channel.delete(db_obj=channel_db, session=session)
 
 
-@logger_decorator(__name__)
 async def chat_member_user_handler(update: Update, context: CallbackContext):
     new_chat_member = update.chat_member.new_chat_member
     old_chat_member = update.chat_member.old_chat_member
@@ -77,7 +72,7 @@ async def chat_member_user_handler(update: Update, context: CallbackContext):
 
     channel_db = await crud_channel.get_by_telegram_id(telegram_id=chat.id)
 
-    msg_class: Type[MessageTextBaseBuilder] = None
+    msg_class: Type[BaseMessageParams] = None
 
     # Join
     if (
@@ -95,9 +90,8 @@ async def chat_member_user_handler(update: Update, context: CallbackContext):
 
     if channel_db and msg_class:
         for user in channel_db.users:
-            msg_text = await msg_class.a_build(
-                from_user, channel_db.title, user.language_code
-            )
-            await context.bot.send_message(
-                user.telegram_id, str(msg_text), parse_mode=msg_text.PARSE_MODE
-            )
+            if user.channel_events:
+                msg = await msg_class.async_build(
+                    from_user, channel_db.title, user.language_code
+                )
+                await context.bot.send_message(user.telegram_id, **msg)

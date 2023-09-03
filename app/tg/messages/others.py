@@ -2,12 +2,12 @@ from app.tg.messages.base import MessageTextSimpleBuilder
 
 
 class MassageEventError(MessageTextSimpleBuilder):
-    key = "/event/error"
+    _key_message_text = "/event/error"
 
 
 class MassageCommandStart(MessageTextSimpleBuilder):
-    key = "/commands/start"
+    _key_message_text = "/commands/start"
 
 
 class MassageCommandHelp(MessageTextSimpleBuilder):
-    key = "/commands/help"
+    _key_message_text = "/commands/help"

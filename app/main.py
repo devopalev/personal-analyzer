@@ -12,7 +12,7 @@ from app.tg import error_handler
 
 
 async def main():
-    init_db()
+    await init_db()
     init_logging(settings.DEBUG_MOD)
     application = ApplicationBuilder().token(settings.BOT_TOKEN).build()
 

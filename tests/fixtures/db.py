@@ -30,9 +30,7 @@ async def db_session(mocker: MockerFixture):
         return_value=TestingSessionLocal(),
     )
 
-    with open(
-        "alembic/default_data/language_objects.sql", "r", encoding="utf-8"
-    ) as file:
+    with open("app/static/language_objects.sql", "r", encoding="utf-8") as file:
         dump_language = file.read()
 
     async with async_engine.begin() as conn:
