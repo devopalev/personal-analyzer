@@ -6,8 +6,8 @@ from telegram import Update
 from telegram.constants import MessageEntityType
 
 from app.db.models.users import User
-from app.tg.handlers.others import help_handler
-from app.tg.handlers.others import start_handler
+from app.tg.handlers.commands import help_handler
+from app.tg.handlers.commands import start_handler
 from app.tg.messages.others import MassageCommandHelp
 from app.tg.messages.others import MassageCommandStart
 
@@ -39,10 +39,11 @@ async def test_start_handler(
     res = await db_session.get(User, 1)
     assert res.telegram_id == user_test.id
 
-    orig_msg = str(
-        await MassageCommandStart.a_build(language_code=user_test.language_code)
+    orig_msg = await MassageCommandStart.async_build(
+        language_code=user_test.language_code
     )
-    assert user_test.test_storage["send_message"] == orig_msg
+
+    assert user_test.test_storage["text"] == orig_msg["text"]
 
 
 @pytest.mark.asyncio
@@ -67,7 +68,8 @@ async def test_help_handler(chat_private, user_test, curr_datetime_utc, user_db)
     update = Update(message=message, update_id=123456789)
     await help_handler(update, None)
 
-    orig_msg = str(
-        await MassageCommandHelp.a_build(language_code=user_test.language_code)
+    orig_msg = await MassageCommandHelp.async_build(
+        language_code=user_test.language_code
     )
-    assert user_test.test_storage["send_message"] == orig_msg
+
+    assert user_test.test_storage["text"] == orig_msg["text"]

@@ -9,20 +9,32 @@ from app.db import session_wrapper
 
 class CRUDLanguageObject(CRUDBase[LanguageObject]):
     @session_wrapper
+    async def get_language_codes(self, session: AsyncSession = None):
+        sql = select(self.Model.language_code).distinct(self.Model.language_code)
+        result = await session.execute(sql)
+        return [t[0] for t in result.all()]
+
+    @session_wrapper
     async def get(
         self,
         key: str,
         language_code: str = ConstantsLanguageCode.DEFAULT.value,
         session: AsyncSession = None,
     ) -> LanguageObject | str:
-        if language_code not in tuple(ConstantsLanguageCode):
-            language_code = ConstantsLanguageCode.DEFAULT.value
-        sql = select(self.Model).where(
-            self.Model.key == key, self.Model.language_code == language_code
+        sql = select(self.Model).where(self.Model.key == key)
+        db_obj = await session.scalar(
+            sql.where(self.Model.language_code == language_code)
         )
-        db_obj = await session.scalar(sql)
+
+        if db_obj:
+            return db_obj
+
+        default_db_obj = await session.scalar(
+            sql.where(self.Model.language_code == ConstantsLanguageCode.DEFAULT.value)
+        )
+
         return (
-            db_obj
+            default_db_obj
             or "An error has occurred! The text for this message was not found :("
         )
 

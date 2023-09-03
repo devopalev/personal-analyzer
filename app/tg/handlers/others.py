@@ -5,36 +5,11 @@ from telegram import Update
 from telegram.ext import BaseHandler
 from telegram.ext import CallbackContext
 
-from app.core.log import logger_decorator
 from app.crud import crud_user
 from app.db.models.language_obj import ConstantsLanguageCode
-from app.tg.messages.others import MassageCommandHelp
-from app.tg.messages.others import MassageCommandStart
 from app.tg.messages.others import MassageEventError
 
 logger = logging.getLogger(__name__)
-
-
-async def start_handler(update: Update, context: CallbackContext):
-    from_user = update.effective_user
-    user_db = await crud_user.get_or_create(
-        language_code=from_user.language_code,
-        telegram_id=from_user.id,
-        username=from_user.username,
-        fullname=from_user.full_name,
-    )
-    text = await MassageCommandStart.a_build(language_code=user_db.language_code)
-    await crud_user.activate_user(user_db)
-    await from_user.send_message(str(text))
-
-
-async def help_handler(update: Update, context: CallbackContext):
-    from_user = update.effective_user
-    user_db = await crud_user.get_by_telegram_id(
-        telegram_id=from_user.id,
-    )
-    text = await MassageCommandHelp.a_build(language_code=user_db.language_code)
-    await from_user.send_message(str(text))
 
 
 class UnknownHandler(BaseHandler):
@@ -42,11 +17,16 @@ class UnknownHandler(BaseHandler):
         return True
 
 
-async def unknown_handler(update: Update, context: CallbackContext):
+async def unknown_handler(update: Update, *args):
     logger.warning(f"Unknown update: {update}")
+
+    if update.callback_query:
+        await update.callback_query.answer("Unknown action")
 
 
 async def error_handler(update: Update, context: CallbackContext):
+    logger.error("Exception while handling an update:", exc_info=context.error)
+
     try:
         # don't confuse user with particular error data
         if update:
@@ -55,14 +35,18 @@ async def error_handler(update: Update, context: CallbackContext):
                     telegram_id=update.effective_user.id
                 )
                 if user_db:
-                    msg_text = MassageEventError.a_build(
+                    msg = await MassageEventError.async_build(
                         language_code=user_db.language_code
                     )
-                    await update.effective_user.send_message(str(msg_text))
+                    await update.effective_user.send_message(**msg)
             elif update.effective_chat.type in (Chat.GROUP, Chat.SUPERGROUP):
-                msg_text = MassageEventError.a_build(
+                msg = await MassageEventError.async_build(
                     language_code=ConstantsLanguageCode.DEFAULT
                 )
-                await update.effective_chat.send_message(str(msg_text))
+                await update.effective_chat.send_message(**msg)
     except Exception as e:
         logger.error("Send error message failed", exc_info=e)
+
+
+async def close_message(update: Update, *args):
+    await update.effective_message.delete()
