@@ -21,7 +21,7 @@ class TelegramChannel(Base):
 
     id = sa.Column(sa.Integer, primary_key=True, index=True, autoincrement=True)
 
-    telegram_id = sa.Column(sa.Integer, nullable=False, unique=True)
+    telegram_id = sa.Column(sa.BigInteger, nullable=False, unique=True)
     title = sa.Column(sa.String)
 
     users = relationship(
